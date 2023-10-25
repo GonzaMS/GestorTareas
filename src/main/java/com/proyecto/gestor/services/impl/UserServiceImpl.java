@@ -37,4 +37,12 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole())
                 .build();
     }
+
+    //Metodo para buscar usuario por id
+    @Override
+    public UserDTO findUserById(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        assert user != null;
+        return mapToUserDTO(user);
+    }
 }

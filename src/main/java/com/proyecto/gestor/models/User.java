@@ -1,15 +1,13 @@
 package com.proyecto.gestor.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
 
+@Data
 @Entity
-@Getter
-@Setter
 @Table(name = "users")
 public class User implements Serializable {
 
@@ -21,5 +19,6 @@ public class User implements Serializable {
     private String password;
     private String email;
     private String role;
+
 
 }
