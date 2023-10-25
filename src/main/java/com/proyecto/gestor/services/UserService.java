@@ -1,6 +1,7 @@
 package com.proyecto.gestor.services;
 
 import com.proyecto.gestor.dto.UserDTO;
+import com.proyecto.gestor.models.User;
 
 import java.util.List;
 
@@ -8,7 +9,7 @@ import java.util.List;
 public interface UserService {
 
     //Definimos el metodo a implementar para buscar todos los usuarios
-    List<UserDTO> findAllUsers();
+    List<UserDTO> findAllUsers(int pageNumber, int pageSize);
 
     //Definimos el metodo a implementar para buscar usuario por id
     UserDTO findUserById(Long userId);

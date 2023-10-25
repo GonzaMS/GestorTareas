@@ -1,11 +1,29 @@
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- Definición de un appender que escribe registros en un archivo -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <!-- Especifica la ruta del archivo de registro relativa al directorio actual -->
+        <file>Logs/application.log</file>
+        <!-- Indica que se deben agregar registros al archivo en lugar de sobrescribirlo -->
+        <append>true</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <!-- Define el patrón de registro -->
+            <pattern>%date [%thread] %-5level %logger{35} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="INFO">
-        <appender-ref ref="STDOUT" />
+    <!-- Definición de un appender que muestra registros en la consola -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Define el patrón de registro para la consola -->
+            <pattern>%date [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Configuración del nivel de registro raíz -->
+    <root level="ERROR">
+        <!-- Asocia el appender 'CONSOLE' para mostrar registros en la consola -->
+        <appender-ref ref="CONSOLE" />
+        <!-- Asocia el appender 'FILE' para escribir registros en un archivo -->
+        <appender-ref ref="FILE" />
     </root>
 </configuration>
