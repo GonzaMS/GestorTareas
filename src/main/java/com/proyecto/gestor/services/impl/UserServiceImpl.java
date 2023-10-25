@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
@@ -24,18 +24,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> findAllUsers() {
         List<User> users = userRepository.findAll();
-        return users.stream().map((user) -> mapToUserDTO(user)).collect((Collectors.toList()));
+        return users.stream().map(this::mapToUserDTO).collect((Collectors.toList()));
     }
 
     //Convertimos un User, a un UserDTO
     private UserDTO mapToUserDTO(User user){
-        UserDTO userDTO = UserDTO.builder()
+
+        return UserDTO.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();
-
-        return userDTO;
     }
 }
