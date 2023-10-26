@@ -1,7 +1,9 @@
 package com.proyecto.gestor.services.impl;
 
 import com.proyecto.gestor.dto.UserDTO;
-import com.proyecto.gestor.models.User;
+import com.proyecto.gestor.dto.UserResponse;
+import com.proyecto.gestor.models.Roles;
+import com.proyecto.gestor.models.UserEntity;
 import com.proyecto.gestor.repository.UserRepository;
 import com.proyecto.gestor.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,31 +28,66 @@ public class UserServiceImpl implements UserService {
 
     //Metodo para buscar todos los Usuarios
     @Override
-    public List<UserDTO> findAllUsers(int pageNumber, int pageSize) {
-        //Creamos el objeto paginacion
+    public UserResponse findAllUsers(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        //Asignamos la paginacion y obtenemos los resultados
-        Page<User> users = userRepository.findAll(pageable);
-        //Obtenemos la lista de usuarios de la pagina
-        List<User> usersList = users.getContent();
-        //Convertimos la lista de usuarios a una lista de usuariosDTO y retornamos
-        return usersList.stream().map(this::mapToUserDTO).collect((Collectors.toList()));
+        Page<UserEntity> users = userRepository.findAll(pageable);
+        List<UserEntity> usersList = users.getContent();
+        List<UserDTO> content = usersList.stream().map(UserServiceImpl::mapToUserDTO).collect((Collectors.toList()));
+
+        UserResponse userResponse = new UserResponse();
+
+        userResponse.setContent(content);
+        userResponse.setPageNumber(users.getNumber());
+        userResponse.setPageSize(users.getSize());
+        userResponse.setTotalElements(users.getTotalElements());
+        userResponse.setTotalPages(users.getTotalPages());
+        userResponse.setLast(users.isLast());
+
+        return userResponse;
     }
 
     @Override
     public UserDTO findUserById(Long userId) {
-        User user = userRepository.getReferenceById(userId);
-        return mapToUserDTO(user);
+        UserEntity userEntity = userRepository.getReferenceById(userId);
+        return UserServiceImpl.mapToUserDTO(userEntity);
     }
 
-    //Convertimos un User, a un UserDTO
-    private UserDTO mapToUserDTO(User user){
+    @Override
+    public UserDTO createUser(UserDTO userDTO) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(userDTO.getUsername());
+        userEntity.setEmail(userDTO.getEmail());
+
+        Roles role = new Roles();
+        role.setName(userDTO.getRole());
+        userEntity.getRoles().add(role);
+
+        userEntity = userRepository.save(userEntity);
+        return UserServiceImpl.mapToUserDTO(userEntity);
+    }
+
+
+    @Override
+    public void deleteUser(Long userId) {
+        UserEntity userEntity = userRepository.getReferenceById(userId);
+        userRepository.delete(userEntity);
+    }
+
+
+    //Convertimos un UserEntity, a un UserDTO
+    private static UserDTO mapToUserDTO(UserEntity userEntity) {
+        String userRole = userEntity.getRoles()
+                .stream()
+                .map(Roles::getName)
+                .findFirst()
+                .orElse("Sin Rol");
 
         return UserDTO.builder()
-                .userId(user.getUserId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
+                .userId(userEntity.getUserId())
+                .username(userEntity.getUsername())
+                .email(userEntity.getEmail())
+                .role(userRole)
                 .build();
     }
+
 }
