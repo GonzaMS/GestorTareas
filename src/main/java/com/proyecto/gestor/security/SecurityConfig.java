@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    //Inyeccion de dependencias
     private final JwtAuthEntryPoint authEntryPoint;
     private final CustomUserDetailsService userDetailsService;
 
@@ -28,6 +29,7 @@ public class SecurityConfig {
         this.authEntryPoint = authEntryPoint;
     }
 
+    //Configuracion de la seguridad
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -41,22 +43,25 @@ public class SecurityConfig {
 
                 );
 
-
+        //Agregamos un filtro personalizado de autenticacion basado en JWT
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
+    //Instancia para autenticar a los usuarios en la aplicacion
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    //Instancia de filtro que se utiliza para procesar autenticacion basada en token JWT
     @Bean
     public JWTAuthenticationFilter jwtAuthenticationFilter() {
         return new JWTAuthenticationFilter();
     }
 
+    //Instancia para codificar y verificar passwords
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

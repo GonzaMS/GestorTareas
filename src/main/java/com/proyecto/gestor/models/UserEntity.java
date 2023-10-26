@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
+//Clase de la entidad usuario para almacenar datos detallados
 public class UserEntity implements Serializable {
 
     @Serial

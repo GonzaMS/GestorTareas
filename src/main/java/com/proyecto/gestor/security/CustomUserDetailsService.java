@@ -19,20 +19,29 @@ import java.util.stream.Collectors;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+    //Inyeccion de dependencias
     private final UserRepository userRepository;
-
     @Autowired
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    
+
+    //Metodo para cargar los detalles del usuario por su username
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        //Busca un usuario por username en el repositorio
         UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        //Crea un objeto UserDetails utilizando el username, password y roles
         return new User(user.getUsername(), user.getPassword(), CustomUserDetailsService.mapRolesToAuthorities(user.getRoles()));
     }
 
+
+    //Metodo para mapear roles a autoridades
     private static Collection<GrantedAuthority> mapRolesToAuthorities(List<Roles> roles) {
+
+        //Convierte la lista de roles en una lista de autoridades
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
     }
 }

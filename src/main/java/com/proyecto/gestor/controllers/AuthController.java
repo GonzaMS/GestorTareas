@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    //Inyeccion de dependencias
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -43,9 +45,12 @@ public class AuthController {
         this.jwtGenerator = jwtGenerator;
     }
 
+
+    @Validated
     @PostMapping("login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginDTO) {
         try {
+            //Autenticacion del usuario
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginDTO.getUsername(),
@@ -53,54 +58,45 @@ public class AuthController {
                     )
             );
 
+            //Establecemos la autenticacion en el contexto de seguridad
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            //Genera un token JWT y lo devolvemos
             String token = jwtGenerator.generateToken(authentication);
             return new ResponseEntity<>(new AuthResponseDTO(token), HttpStatus.OK);
         } catch (AuthenticationException ex) {
-            return new ResponseEntity<>(HttpStatus.OK);
+            //Si la autentificacion falla devolvemos un http status bad request
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
     }
 
-    /**
-     * public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
-     * try {
-     * Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-     * loginDTO.getUsername(),
-     * loginDTO.getPassword()
-     * )
-     * );
-     * <p>
-     * SecurityContextHolder.getContext().setAuthentication(authentication);
-     * return new ResponseEntity<>("User logged in successfully!", HttpStatus.OK);
-     * } catch (AuthenticationException ex) {
-     * return ResponseEntity.badRequest().body("Error: Username or password is incorrect!");
-     * }
-     * <p>
-     * }
-     **/
-
-
+    @Validated
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
         if (userRepository.existsByUsername(registerDTO.getUsername()))
             return ResponseEntity.badRequest().body("Error: Username is already taken!");
 
+        //Creamos el nuevo usuario y configuramos sus atributos
         UserEntity user = new UserEntity();
         user.setUsername(registerDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));//Encriptamos la contraseña
         user.setEmail(registerDTO.getEmail());
 
-        //Buscamos el rol de usuario
+        //Buscamos el rol de USER en la BD
         Roles roles = roleRepository.findByName("USER").get();
 
-        //Le asignamos el rol de usuario
+        //Le asignamos el rol de USER
         user.setRoles(Collections.singletonList(roles));
 
+        //Guardamos el usuario en la base de datos
         userRepository.save(user);
 
+        //Retornamos mensaje de exito
         return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
     }
+
+    //Logout
 
 
 }

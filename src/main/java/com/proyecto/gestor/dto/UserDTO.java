@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 @Data
 @Builder
+//UserDTO para manipulacion de datos a mostrar
 public class UserDTO implements Serializable {
 
     @Serial  private static final long serialVersionUID = 1L;

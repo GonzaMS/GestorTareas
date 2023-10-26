@@ -1,16 +1,15 @@
 package com.proyecto.gestor.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Data
 @Table(name = "roles")
-@Setter
-@Getter
+//Clase para la creacion de roles
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

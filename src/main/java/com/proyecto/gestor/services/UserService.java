@@ -6,14 +6,16 @@ import com.proyecto.gestor.dto.UserResponse;
 
 public interface UserService {
 
-    //Definimos el metodo a implementar para buscar todos los usuarios
+    //Metodo para mostrar todos los usuarios(con parametros de paginacion)
     UserResponse findAllUsers(int pageNumber, int pageSize);
 
-    //Definimos el metodo a implementar para buscar usuario por id
+    //Metodo para buscar un user en especifico
     UserDTO findUserById(Long userId);
 
+    //Metodo para crear usuario
     UserDTO createUser(UserDTO userDTO);
 
+    //Metodo para borrar usuario
     void deleteUser(Long userId);
 
 }

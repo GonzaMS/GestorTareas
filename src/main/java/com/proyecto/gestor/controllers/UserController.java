@@ -11,10 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class UserController {
-    //Referencia al servicio
-    private final UserService userService;
 
-    //Inyectamos el servicio
+    //Inyeccion de dependencias
+    private final UserService userService;
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
