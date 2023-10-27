@@ -2,7 +2,7 @@ package com.proyecto.gestor.security;
 
 import com.proyecto.gestor.models.Roles;
 import com.proyecto.gestor.models.UserEntity;
-import com.proyecto.gestor.repository.UserRepository;
+import com.proyecto.gestor.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 public class CustomUserDetailsService implements UserDetailsService {
 
     //Inyeccion de dependencias
-    private final UserRepository userRepository;
+    private final IUserRepository IUserRepository;
     @Autowired
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public CustomUserDetailsService(IUserRepository IUserRepository) {
+        this.IUserRepository = IUserRepository;
     }
 
     //Metodo para cargar los detalles del usuario por su username
@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         //Busca un usuario por username en el repositorio
-        UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        UserEntity user = IUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         //Crea un objeto UserDetails utilizando el username, password y roles
         return new User(user.getUsername(), user.getPassword(), CustomUserDetailsService.mapRolesToAuthorities(user.getRoles()));

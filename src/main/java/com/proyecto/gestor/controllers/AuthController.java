@@ -5,8 +5,8 @@ import com.proyecto.gestor.dto.LoginDTO;
 import com.proyecto.gestor.dto.RegisterDTO;
 import com.proyecto.gestor.models.Roles;
 import com.proyecto.gestor.models.UserEntity;
-import com.proyecto.gestor.repository.RoleRepository;
-import com.proyecto.gestor.repository.UserRepository;
+import com.proyecto.gestor.repository.IRoleRepository;
+import com.proyecto.gestor.repository.IUserRepository;
 import com.proyecto.gestor.security.JWTGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,17 +30,17 @@ import java.util.Collections;
 public class AuthController {
     //Inyeccion de dependencias
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final IUserRepository IUserRepository;
+    private final IRoleRepository IRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTGenerator jwtGenerator;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                          RoleRepository roleRepository, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
+    public AuthController(AuthenticationManager authenticationManager, IUserRepository IUserRepository,
+                          IRoleRepository IRoleRepository, PasswordEncoder passwordEncoder, JWTGenerator jwtGenerator) {
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.IUserRepository = IUserRepository;
+        this.IRoleRepository = IRoleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
     }
@@ -74,7 +74,7 @@ public class AuthController {
     @Validated
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO) {
-        if (userRepository.existsByUsername(registerDTO.getUsername()))
+        if (IUserRepository.existsByUsername(registerDTO.getUsername()))
             return ResponseEntity.badRequest().body("Error: Username is already taken!");
 
         //Creamos el nuevo usuario y configuramos sus atributos
@@ -84,13 +84,13 @@ public class AuthController {
         user.setEmail(registerDTO.getEmail());
 
         //Buscamos el rol de USER en la BD
-        Roles roles = roleRepository.findByName("USER").get();
+        Roles roles = IRoleRepository.findByName("USER").get();
 
         //Le asignamos el rol de USER
         user.setRoles(Collections.singletonList(roles));
 
         //Guardamos el usuario en la base de datos
-        userRepository.save(user);
+        IUserRepository.save(user);
 
         //Retornamos mensaje de exito
         return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);

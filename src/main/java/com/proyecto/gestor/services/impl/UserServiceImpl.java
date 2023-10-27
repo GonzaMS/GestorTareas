@@ -4,8 +4,8 @@ import com.proyecto.gestor.dto.UserDTO;
 import com.proyecto.gestor.dto.UserResponse;
 import com.proyecto.gestor.models.Roles;
 import com.proyecto.gestor.models.UserEntity;
-import com.proyecto.gestor.repository.UserRepository;
-import com.proyecto.gestor.services.UserService;
+import com.proyecto.gestor.repository.IUserRepository;
+import com.proyecto.gestor.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements IUserService {
     //Inyectamos dependencias
-    private final UserRepository userRepository;
+    private final IUserRepository IUserRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(IUserRepository IUserRepository) {
+        this.IUserRepository = IUserRepository;
     }
 
     //Metodo para buscar usuarios(usando paginacion)
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         //Buscamos los usuarios de acuerdo a la paginacion
-        Page<UserEntity> users = userRepository.findAll(pageable);
+        Page<UserEntity> users = IUserRepository.findAll(pageable);
 
         //Obtenemos el contenido de la paginacion(Users)
         List<UserEntity> usersList = users.getContent();
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     //Metodo para buscar un user por Id
     @Override
     public UserDTO findUserById(Long userId) {
-        UserEntity userEntity = userRepository.getReferenceById(userId);
+        UserEntity userEntity = IUserRepository.getReferenceById(userId);
         return UserServiceImpl.mapToUserDTO(userEntity);
     }
 
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         userEntity.getRoles().add(role);
 
         //Guardamos el UserEntity en la BD
-        userEntity = userRepository.save(userEntity);
+        userEntity = IUserRepository.save(userEntity);
 
         return UserServiceImpl.mapToUserDTO(userEntity);
     }
@@ -92,10 +92,25 @@ public class UserServiceImpl implements UserService {
     //Metodo para eliminar un user
     @Override
     public void deleteUser(Long userId) {
-        UserEntity userEntity = userRepository.getReferenceById(userId);
-        userRepository.delete(userEntity);
+        UserEntity userEntity = IUserRepository.getReferenceById(userId);
+        IUserRepository.delete(userEntity);
     }
 
+    @Override
+    public UserDTO updateUser(Long userId, UserDTO userDTO) {
+        UserEntity userEntity = new UserEntity();
+
+        userEntity = IUserRepository.getReferenceById(userId);
+
+        userEntity.setUsername(userDTO.getUsername());
+        userEntity.setEmail(userDTO.getEmail());
+
+        userEntity = IUserRepository.save(userEntity);
+
+
+        return UserServiceImpl.mapToUserDTO(userEntity);
+
+    }
 
     //Convertimos un UserEntity, a un UserDTO
     private static UserDTO mapToUserDTO(UserEntity userEntity) {
